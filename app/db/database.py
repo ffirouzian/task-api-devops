@@ -1,27 +1,21 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
 import os
+
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 load_dotenv()
 
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/taskdb"
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/taskdb"
 )
 
 
-engine = create_engine(
-    DATABASE_URL
-)
+engine = create_engine(DATABASE_URL)
 
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):

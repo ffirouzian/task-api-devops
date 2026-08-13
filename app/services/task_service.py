@@ -15,9 +15,7 @@ def get_task(db: Session, task_id: int):
 
 def create_task(db: Session, task_data: TaskCreate):
 
-    task = Task(
-        title=task_data.title
-    )
+    task = Task(title=task_data.title)
 
     return task_repository.create(db, task)
 
