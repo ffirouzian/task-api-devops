@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -24,7 +24,15 @@ def get_task(
     task_id: int,
     db: Session = Depends(get_db)
 ):
-    return task_service.get_task(db, task_id)
+    task = task_service.get_task(db, task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+
+    return task
 
 
 @router.post("/", response_model=TaskResponse)
@@ -43,9 +51,10 @@ def delete_task(
     task = task_service.delete_task(db, task_id)
 
     if not task:
-        return {
-            "message": "Task not found"
-        }
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
 
     return {
         "message": "Task deleted"
