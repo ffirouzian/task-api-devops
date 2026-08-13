@@ -20,3 +20,15 @@ def create_task(db: Session, task_data: TaskCreate):
     )
 
     return task_repository.create(db, task)
+
+
+def delete_task(db: Session, task_id: int):
+
+    task = task_repository.get_by_id(db, task_id)
+
+    if not task:
+        return None
+
+    task_repository.delete(db, task)
+
+    return task
