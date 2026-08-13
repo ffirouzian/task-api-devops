@@ -19,6 +19,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://taskuser:taskpassword@localhost:5432/taskdb
+
     services:
       postgres:
         image: postgres:16
@@ -33,10 +36,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-
-    env:
-      DATABASE_URL: postgresql://taskuser:taskpassword@localhost:5432/taskdb
 
 
     steps:
@@ -56,6 +55,11 @@ jobs:
           pip install -r requirements.txt
 
 
+      - name: Debug database url
+        run: |
+          echo $DATABASE_URL
+
+
       - name: Run Ruff
         run: |
           ruff check .
@@ -65,9 +69,16 @@ jobs:
         run: |
           black --check .
 
+
+      - name: Check postgres connection
+        run: |
+          PGPASSWORD=taskpassword psql -h localhost -U taskuser -d taskdb -c "SELECT 1"
+
+
       - name: Initialize database
         run: |
           PYTHONPATH=. python app/db/init_db.py
+
 
       - name: Run tests
         run: |

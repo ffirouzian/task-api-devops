@@ -1,4 +1,5 @@
 from app.db.database import Base, engine
+from app.models.task import Task
 
 
 def init_db():
