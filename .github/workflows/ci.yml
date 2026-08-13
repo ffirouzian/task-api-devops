@@ -69,4 +69,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t task-api .
+          docker build -t task-api:${{ github.sha }} .
