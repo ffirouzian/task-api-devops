@@ -55,9 +55,9 @@ jobs:
           pip install -r requirements.txt
 
 
-      - name: Debug database url
+      - name: Debug DATABASE_URL
         run: |
-          echo $DATABASE_URL
+          echo "$DATABASE_URL"
 
 
       - name: Run Ruff
@@ -70,9 +70,24 @@ jobs:
           black --check .
 
 
-      - name: Check postgres connection
+      - name: Check PostgreSQL
         run: |
-          PGPASSWORD=taskpassword psql -h localhost -U taskuser -d taskdb -c "SELECT 1"
+          pg_isready -h localhost -p 5432
+
+
+      - name: Test PostgreSQL login
+        run: |
+          PGPASSWORD=taskpassword psql \
+            -h localhost \
+            -p 5432 \
+            -U taskuser \
+            -d taskdb \
+            -c "SELECT current_database(), current_user;"
+
+
+      - name: Test SQLAlchemy connection
+        run: |
+          PYTHONPATH=. python -c "from app.db.database import engine; print(engine.url); engine.connect().close(); print('SQLAlchemy connection OK')"
 
 
       - name: Initialize database
