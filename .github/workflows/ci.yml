@@ -67,7 +67,7 @@ jobs:
 
       - name: Initialize database
         run: |
-          python app/db/init_db.py
+          PYTHONPATH=. python app/db/init_db.py
 
       - name: Run tests
         run: |
