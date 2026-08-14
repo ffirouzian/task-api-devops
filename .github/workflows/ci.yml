@@ -4,6 +4,7 @@ permissions:
   contents: read
   packages: write
 
+
 on:
   push:
     branches:
@@ -21,16 +22,21 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://taskuser:taskpassword@localhost:5432/taskdb
+      PYTHONPATH: .
+
 
     services:
       postgres:
         image: postgres:16
+
         env:
           POSTGRES_DB: taskdb
           POSTGRES_USER: taskuser
           POSTGRES_PASSWORD: taskpassword
+
         ports:
           - 5432:5432
+
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -87,12 +93,27 @@ jobs:
 
       - name: Test SQLAlchemy connection
         run: |
-          PYTHONPATH=. python -c "from app.db.database import engine; print(engine.url); engine.connect().close(); print('SQLAlchemy connection OK')"
+          python -c "
+          from app.db.database import engine
+          print(engine.url)
+          engine.connect().close()
+          print('SQLAlchemy connection OK')
+          "
 
 
       - name: Initialize database
         run: |
-          PYTHONPATH=. python app/db/init_db.py
+          python app/db/init_db.py
+
+
+      - name: Check tables
+        run: |
+          PGPASSWORD=taskpassword psql \
+            -h localhost \
+            -p 5432 \
+            -U taskuser \
+            -d taskdb \
+            -c "\dt"
 
 
       - name: Run tests
@@ -115,7 +136,8 @@ jobs:
 
       - name: Tag Docker image for GHCR
         run: |
-          docker tag task-api:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/task-api:${{ github.sha }}
+          docker tag task-api:${{ github.sha }} \
+          ghcr.io/${{ github.repository_owner }}/task-api:${{ github.sha }}
 
 
       - name: Push Docker image to GHCR
