@@ -1,5 +1,5 @@
 from app.db.database import Base, engine
-from app.models.task import Task
+from app.models.task import Task  # noqa: F401
 
 
 def init_db():
